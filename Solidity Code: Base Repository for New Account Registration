@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/// @title Base Repository - Tracks New Account Registrations
+/// @author 
+/// @notice This contract allows users to register new accounts
+/// @dev Designed for use on the Base (L2) or Ethereum network
+contract BaseRepository {
+    // --- State Variables ---
+    uint256 public totalRegistered; // Total number of registered accounts
+
+    struct Account {
+        address userAddress;
+        uint256 registeredAt;
+        string username;
+    }
+
+    // Mapping to track if an address has registered
+    mapping(address => bool) public isRegistered;
+    // Mapping from address to account details
+    mapping(address => Account) public accounts;
+
+    // --- Events ---
+    event AccountRegistered(address indexed user, string username, uint256 timestamp);
+
+    // --- Modifiers ---
+    modifier notRegistered() {
+        require(!isRegistered[msg.sender], "User already registered");
+        _;
+    }
+
+    /// @notice Registers a new user account
+    /// @param _username The chosen username for the user
+    function registerAccount(string calldata _username) external notRegistered {
+        require(bytes(_username).length > 0, "Username cannot be empty");
+
+        // Mark user as registered
+        isRegistered[msg.sender] = true;
+        totalRegistered += 1;
+
+        // Store account info
+        accounts[msg.sender] = Account({
+            userAddress: msg.sender,
+            registeredAt: block.timestamp,
+            username: _username
+        });
+
+        // Emit event
+        emit AccountRegistered(msg.sender, _username, block.timestamp);
+    }
+
+    /// @notice Returns all data for a registered account
+    /// @param _user The address of the user
+    /// @return userAddress The user's wallet address
+    /// @return registeredAt The timestamp when registered
+    /// @return username The username chosen
+    function getAccount(address _user) external view returns (
+        address userAddress,
+        uint256 registeredAt,
+        string memory username
+    ) {
+        require(isRegistered[_user], "User not registered");
+        Account memory acc = accounts[_user];
+        return (acc.userAddress, acc.registeredAt, acc.username);
+    }
+}
