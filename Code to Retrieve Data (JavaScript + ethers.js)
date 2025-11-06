@@ -1,0 +1,28 @@
+const { ethers } = require("ethers");
+
+// Configuration
+const BASE_RPC_URL = "https://mainnet.base.org"; // Base Mainnet RPC
+const BASENAME_REGISTRY_ADDRESS = "0x0Adfcf9e59c4B82A0ECb4d91468A0a08C4ecB95f"; // Basenames registry contract address (verify below)
+
+// ABI for totalSupply() from ENS-compatible contract
+const REGISTRY_ABI = [
+  "function totalSupply() view returns (uint256)"
+];
+
+async function getBasenameCount() {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(BASE_RPC_URL);
+    const registry = new ethers.Contract(BASENAME_REGISTRY_ADDRESS, REGISTRY_ABI, provider);
+    
+    const totalNames = await registry.totalSupply();
+    console.log(`🔥 Total registered .base domains: ${ethers.utils.formatUnits(totalNames, 0)}`);
+    
+  } catch (error) {
+    console.error("Query error:", error.message);
+    console.log("💡 Verify the contract address is up-to-date. Check https://basescan.org");
+  }
+}
+
+getBasenameCount();
+
+
