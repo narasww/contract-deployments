@@ -1,0 +1,30 @@
+// Example: Fetch active addresses on Base network using Moralis API
+
+const API_KEY = 'YOUR_API_KEY';  // Replace with your Moralis API key
+const BASE_CHAIN_ID = '8453';    // Chain ID for Base mainnet
+const API_URL = `https://api.moralis.io/v2/network/${BASE_CHAIN_ID}/address/active`;
+
+async function getActiveAddresses() {
+  try {
+    const res = await fetch(API_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-API-KEY': API_KEY
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log('Active addresses:', data);
+    return data;
+
+  } catch (err) {
+    console.error('Error fetching Base network stats:', err);
+  }
+}
+
+getActiveAddresses();
